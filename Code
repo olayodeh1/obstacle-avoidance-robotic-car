@@ -1,0 +1,98 @@
+// Define pins for IR sensors
+#define LEFT_IR_SENSOR 2  // Left IR sensor connected to digital pin 2
+#define RIGHT_IR_SENSOR 3 // Right IR sensor connected to digital pin 3
+
+// Define pins for motor driver
+#define IN1 4  // Motor A input 1
+#define IN2 5  // Motor A input 2
+#define IN3 6  // Motor B input 1
+#define IN4 7  // Motor B input 2
+#define ENA 9  // Enable pin for Motor A (PWM)
+#define ENB 10 // Enable pin for Motor B (PWM)
+
+// Motor speed (0-255)
+#define MOTOR_SPEED 150
+
+void setup() {
+  // Set IR sensor pins as input
+  pinMode(LEFT_IR_SENSOR, INPUT);
+  pinMode(RIGHT_IR_SENSOR, INPUT);
+
+  // Set motor control pins as output
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+
+  // Initialize serial communication for debugging
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Read IR sensor values
+  int leftIR = digitalRead(LEFT_IR_SENSOR);  // Read left IR sensor
+  int rightIR = digitalRead(RIGHT_IR_SENSOR); // Read right IR sensor
+
+  // Debugging: Print sensor values to serial monitor
+  Serial.print("Left IR: ");
+  Serial.print(leftIR);
+  Serial.print(" | Right IR: ");
+  Serial.println(rightIR);
+
+  // Obstacle avoidance logic
+  if (leftIR == LOW && rightIR == LOW) {
+    // No obstacle detected: Move forward
+    moveForward();
+  } else if (leftIR == HIGH && rightIR == LOW) {
+    // Obstacle on the left: Turn right
+    turnRight();
+  } else if (leftIR == LOW && rightIR == HIGH) {
+    // Obstacle on the right: Turn left
+    turnLeft();
+  } else {
+    // Obstacle on both sides: Stop
+    stopCar();
+  }
+}
+
+// Function to move the car forward
+void moveForward() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENA, MOTOR_SPEED); // Set speed for Motor A
+  analogWrite(ENB, MOTOR_SPEED); // Set speed for Motor B
+}
+
+// Function to turn the car right
+void turnRight() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  analogWrite(ENA, MOTOR_SPEED); // Set speed for Motor A
+  analogWrite(ENB, MOTOR_SPEED); // Set speed for Motor B
+}
+
+// Function to turn the car left
+void turnLeft() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENA, MOTOR_SPEED); // Set speed for Motor A
+  analogWrite(ENB, MOTOR_SPEED); // Set speed for Motor B
+}
+
+// Function to stop the car
+void stopCar() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENA, 0); // Stop Motor A
+  analogWrite(ENB, 0); // Stop Motor B
+}
